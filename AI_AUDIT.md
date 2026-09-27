@@ -1,9 +1,9 @@
 # AI_AUDIT — Team AI Verification Log
 
 **Course:** CS 4379H Cryptography, Fall 2026  
-**Team Name / Number:** [Enter Team Name or Number]  
-**Paper:** [Enter Paper Title/Topic]  
-**AI Assistant(s) Used:** [e.g., ChatGPT (GPT-4o), Claude 3.5 Sonnet]  
+**Team Name / Number:** Group 5  
+**Paper:** LSB Steganography Using Pixel Locator Sequence with AES  
+**AI Assistant(s) Used:** Claude Sonnet 5  
 
 ---
 
@@ -34,7 +34,7 @@ One log per team, kept in the root of your GitHub repository and updated as you 
 
 | # | Date | Role | What the AI claimed or produced (short quote or summary) | Category | Verified? (yes / no / partially) | How you checked it (source, test, experiment) | Team Member |
 |---|------|------|----------------------------------------------------------|----------|----------------------------------|---------------------------------------------|-------------|
-| 1 | YYYY-MM-DD | | | | | | |
+| 1 | 2026-09-27 | Reproducibility Checker | A .md plaintext conversion of the AI_AUDIT.docx file provided for us | OK | yes | Text was copied and pasted into Obsidian to validate the .md format before being added to the repo | Aaron Espinoza |
 | 2 | YYYY-MM-DD | | | | | | |
 | 3 | YYYY-MM-DD | | | | | | |
 | 4 | YYYY-MM-DD | | | | | | |
