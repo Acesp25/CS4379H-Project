@@ -3,7 +3,7 @@
 **Course:** CS 4379H Cryptography, Fall 2026  
 **Team Name / Number:** Group 5  
 **Paper:** LSB Steganography Using Pixel Locator Sequence with AES  
-**AI Assistant(s) Used:** Claude Sonnet 5  
+**AI Assistant(s) Used:** Claude Sonnet 5, Gemini Nano Banana
 
 ---
 
@@ -35,7 +35,7 @@ One log per team, kept in the root of your GitHub repository and updated as you 
 | # | Date | Role | What the AI claimed or produced (short quote or summary) | Category | Verified? (yes / no / partially) | How you checked it (source, test, experiment) | Team Member |
 |---|------|------|----------------------------------------------------------|----------|----------------------------------|---------------------------------------------|-------------|
 | 1 | 2026-09-27 | Reproducibility Checker | A .md plaintext conversion of the AI_AUDIT.docx file provided for us | OK | yes | Text was copied and pasted into Obsidian to validate the .md format before being added to the repo | Aaron Espinoza |
-| 2 | YYYY-MM-DD | | | | | | |
+| 2 | 2026-10-5 | Quantra Correspondent | A cartoon image demonstrating an application of our paper's steganographic techniques | OK | yes | Upon review, the image's portrayal was accurate and amused us | Aaron Espinoza |
 | 3 | YYYY-MM-DD | | | | | | |
 | 4 | YYYY-MM-DD | | | | | | |
 | 5 | YYYY-MM-DD | | | | | | |
