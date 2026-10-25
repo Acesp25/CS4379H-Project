@@ -38,10 +38,5 @@ def main():
             print("PLS file is not present !")
 
 
-
-
-
-
-
-
-main()
+if __name__ == '__main__' :
+	main()
