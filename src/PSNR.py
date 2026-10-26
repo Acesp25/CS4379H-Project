@@ -1,6 +1,10 @@
 from math import log10, sqrt
 import cv2
 import numpy as np
+from pathlib import Path
+
+INPUT_DIR = Path("../data/images/input/")
+OUTPUT_DIR = Path("../data/images/output/")
 
 def PSNR(original, compressed):
     mse = np.mean((original - compressed) ** 2)
@@ -14,26 +18,18 @@ def PSNR(original, compressed):
     return psnr
 
 def main():
-    original = cv2.imread("images/in1.png")
-    compressed = cv2.imread("images/out1.png")
-    value = PSNR(original, compressed)
-    print(f"1st PSNR value is {value} dB")
-    # original = cv2.imread("images/in2.png")
-    # compressed = cv2.imread("images/out2.png")
-    # value = PSNR(original, compressed)
-    # print(f"2nd PSNR value is {value} dB")
-    original = cv2.imread("images/in3.png")
-    compressed = cv2.imread("images/out3.png")
-    value = PSNR(original, compressed)
-    print(f"3rd PSNR value is {value} dB")
-    original = cv2.imread("images/in4.png")
-    compressed = cv2.imread("images/out4.png")
-    value = PSNR(original, compressed)
-    print(f"4th PSNR value is {value} dB")
-    original = cv2.imread("images/in5.png")
-    compressed = cv2.imread("images/out5.png")
-    value = PSNR(original, compressed)
-    print(f"5th PSNR value is {value} dB")
+    for i in range(1, 6):
+        input_path = INPUT_DIR / f"in{i}.png"
+        output_path = OUTPUT_DIR / f"out{i}.png"
+        
+        input = cv2.imread(str(input_path))
+        output = cv2.imread(str(output_path))
+        
+        if input is not None and output is not None:
+            value = PSNR(input, output)
+            print(f"#{i}: PSNR value is {value:.2f} dB")
+        else:
+            print(f"Could not find file for index {i}")
 
 if __name__ == "__main__":
     main()
