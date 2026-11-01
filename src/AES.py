@@ -1,4 +1,3 @@
-import binascii
 import pbkdf2
 import pyaes
 
@@ -9,14 +8,12 @@ iv = 113573230825063269301116483319046608643543151989648198772824118452040014644
 def encrypt(raw, password):
     key = pbkdf2.PBKDF2(password, passwordSalt).read(32)
     aes = pyaes.AESModeOfOperationCTR(key, pyaes.Counter(iv))
-    cipherByte = aes.encrypt(raw)
-    return binascii.hexlify(cipherByte).decode('utf-8')
+    # Return the raw ciphertext bytes (no hexlify): half the size to embed.
+    return aes.encrypt(raw.encode('utf-8'))
 
 
-def decrypt(cipherText, password):
-    res = bytes(cipherText, 'utf-8')
-    cipherByte = binascii.unhexlify(res)
+def decrypt(cipherBytes, password):
     key = pbkdf2.PBKDF2(password, passwordSalt).read(32)
     aes = pyaes.AESModeOfOperationCTR(key, pyaes.Counter(iv))
-    originalByte = aes.decrypt(cipherByte)
+    originalByte = aes.decrypt(cipherBytes)
     return originalByte.decode('utf-8')
