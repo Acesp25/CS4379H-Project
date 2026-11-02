@@ -11,7 +11,6 @@ def encrypt(raw, password):
     # Return the raw ciphertext bytes (no hexlify): half the size to embed.
     return aes.encrypt(raw.encode('utf-8'))
 
-
 def decrypt(cipherBytes, password):
     key = pbkdf2.PBKDF2(password, passwordSalt).read(32)
     aes = pyaes.AESModeOfOperationCTR(key, pyaes.Counter(iv))

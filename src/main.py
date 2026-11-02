@@ -7,8 +7,8 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description="Encode or decode a message in an image.")
-    default_input = Path(__file__).parent / "images" / "in1.png"
-    default_output = Path(__file__).parent / "images" / "out1.png"
+    default_input = Path(__file__).parent / "data" / "output" / "images" / "in1.png"
+    default_output = Path(__file__).parent / "data" / "output" / "images" / "out1.png"
     parser.add_argument(
         "--input",
         default=str(default_input),
