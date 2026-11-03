@@ -3,6 +3,7 @@ import AES as Cipher
 import os
 
 def main():
+    # Constants file names and paths.
     PLS_TXT_PATH = "../data/pls.txt"
     PLS_TXT_ENC_PATH = "../data/pls.txt.enc"
     OUTPUT_TXT_PATH = "../data/out.txt"
@@ -11,6 +12,7 @@ def main():
     INPUT_IMAGES = ["in1.png", "in2.png", "in3.png", "in4.png", "in5.png"]
     OUTPUT_IMAGES = ["out1.png", "out2.png", "out3.png", "out4.png", "out5.png"]
 
+    # Gets user input.
     select = input("Enter E for Encoding or D for Decoding: ")
 
     if select == "E":
