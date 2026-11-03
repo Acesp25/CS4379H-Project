@@ -222,3 +222,7 @@ __marimo__/
 
 # PyCharm
 .idea/
+
+# Project-specific
+data/pls.txt
+data/pls.txt.enc
