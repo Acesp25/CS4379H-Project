@@ -4,7 +4,7 @@ import os
 import numpy as np
 from PIL import Image
 
-import PLShandler as plsh
+from original_refactored import PLShandler as plsh
 
 PLS = []
 img = Image.open(r"images/in1.png")

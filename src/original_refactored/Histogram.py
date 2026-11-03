@@ -1,4 +1,4 @@
-import cv2
+from original_refactored import cv2
 from matplotlib import pyplot as plt
 img1 = cv2.imread('images/hist.png', 1)
 plt.hist(img1.ravel(),256,[0,256])

@@ -1,6 +1,6 @@
-import LSB as lsb
-import AES as Cipher
-import os
+from original_refactored.LSB import LSB as lsb
+from original_refactored import AES as Cipher
+from original_refactored import os
 
 
 def main():
