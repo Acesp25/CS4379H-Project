@@ -14,7 +14,7 @@ def main():
 
     # Prints intro text.
     title = "Improving Security of LSB Steganography"
-    subtitle = "CS 43798H - Group 2, Fall 2026"
+    subtitle = "CS 4379H - Group 2, Fall 2026"
 
     print("\n" + colored(title, "green", attrs = ["bold"]))
     print(colored(subtitle, "light_grey", attrs = ["bold"]))
