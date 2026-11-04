@@ -7,4 +7,3 @@ def get_project_root() -> str:
     project_root = os.path.dirname(src_dir)
 
     return project_root
-
