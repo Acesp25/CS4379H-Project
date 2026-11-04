@@ -63,13 +63,13 @@ def main():
     # Decides which program to run.
     match (user_input):
         case "A":
-            print("Hello")
+            original.main()
         case "B":
-            print("Hello")
+            compact_pls.main()
         case "C":
-            print("Hello")
+            drop_hex_encode.main()
         case "D":
-            print("Hello")
+            no_pls.main()
 
 if __name__ == "__main__":
     main()
