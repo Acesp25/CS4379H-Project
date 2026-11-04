@@ -2,14 +2,15 @@ from original_refactored  import LSB as lsb
 from original_refactored  import AES as Cipher
 import os
 from pathlib import Path
+from definitions import PROJECT_ROOT as PROJECT_ROOT
 
 def main():
     # Constants file names and paths.
-    PLS_TXT_PATH = "../../data/pls.txt"
-    PLS_TXT_ENC_PATH = "../../data/pls.txt.enc"
-    OUTPUT_TXT_PATH = "../../data/out.txt"
-    INPUT_IMG_DIR = "../../data/images/input/"
-    OUTPUT_IMG_DIR = "../../data/images/output/"
+    PLS_TXT_PATH = os.path.join(PROJECT_ROOT, "data/pls.txt")
+    PLS_TXT_ENC_PATH = os.path.join(PROJECT_ROOT, "data/pls.txt.enc")
+    OUTPUT_TXT_PATH = os.path.join(PROJECT_ROOT, "data/out.txt")
+    INPUT_IMG_DIR = os.path.join(PROJECT_ROOT, "data/images/input/")
+    OUTPUT_IMG_DIR = os.path.join(PROJECT_ROOT, "data/images/output/")
     INPUT_IMAGES = ["in1.png", "in2.png", "in3.png", "in4.png", "in5.png"]
     OUTPUT_IMAGES = ["out1.png", "out2.png", "out3.png", "out4.png", "out5.png"]
 
