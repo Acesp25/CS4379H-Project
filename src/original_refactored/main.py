@@ -1,5 +1,5 @@
-import LSB as lsb
-import AES as Cipher
+from original_refactored  import LSB as lsb
+from original_refactored  import AES as Cipher
 import os
 from pathlib import Path
 
@@ -77,7 +77,7 @@ def main():
         print(encoded_message)
         lsb.lsb_encoding(encoded_message, selected_input_img, corresponding_output_img)
 
-        # TODO: Explore why the original author included this final if statement here.
+        # Deletes `pls.txt` and replaces with `pls.txt.enc`.
         if os.path.exists(PLS_TXT_PATH):
             os.remove(PLS_TXT_PATH)
 

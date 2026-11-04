@@ -3,7 +3,7 @@ import random
 import os
 import numpy as np
 from PIL import Image
-import PLShandler as plsh
+from original_refactored import PLShandler as plsh
 
 # File name and path constants.
 PLS_TXT_PATH = "../../data/pls.txt"
