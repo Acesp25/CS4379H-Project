@@ -61,6 +61,35 @@ def _change_lsb(channel_value, new_bit: str):
 
     return channel_value
 
+# Simply returns the LSB of a channel value number.
+def _get_lsb(channel_value):
+    return channel_value % 2
+
+# Gets the LSB's from a pixel.
+def _read_bits_from_pixel(img, pixel_number, col):
+    x, y = _get_pixel_position(pixel_number, col)
+    rgb = img.getpixel((x, y))
+    bits = f"{_get_lsb(rgb[0])}{_get_lsb(rgb[1])}{_get_lsb(rgb[2])}"
+
+    return bits
+
+# Returns a single character retrieved from the image.
+def _read_character(img, pixel_numbers, col):
+    char_as_bits = ""
+
+    # Accumulates LSBs across each pixel into a single string.
+    for i in range(len(pixel_numbers)):
+        char_as_bits += _read_bits_from_pixel(img, pixel_numbers[i], col)
+
+    # Each char is 8 bits, so keeps only the first 8 bits.
+    char_as_bits = char_as_bits[:8]
+
+    # Converts the binary string into an integer.
+    char_unicode_value = int(char_as_bits, 2)
+
+    # Returns the Unicode equivalent char for the integer.
+    return chr(char_unicode_value)
+
 def data_list_in_bit(data):
     data_bits = list(format(c, '08b') for c in bytearray(data.encode('latin-1')))
     return data_bits
@@ -122,31 +151,15 @@ def lsb_decoding(input_img_path: str, output_img_path: str):
         os.remove(OUTPUT_TXT_PATH)
 
     # Gets the secret message.
-    [row, col] = Image.open(rf"{input_img_path}").size
+    col = Image.open(rf"{input_img_path}").size[1]
     stego_image = Image.open(rf"{output_img_path}")
-    decoded_text_in_bits = []
-
-    for i in range(0, len(pls), 3):
-        ithChar = ""
-
-        for j in range(0, 3):
-            rr = pls[i + j] // col
-            rc = pls[i + j] % col
-            rgb = stego_image.getpixel((rr, rc))
-
-            for k in rgb:
-                if (k & 1):
-                    ithChar += "1"
-                else:
-                    ithChar += "0"
-
-        ithChar = ithChar[:-1]
-        decoded_text_in_bits.append((ithChar))
-
+    total_chars = len(pls) // 3
     decoded_text = ""
 
-    # Translates decoded text from bits to str.
-    for i in decoded_text_in_bits:
-        decoded_text += chr(int(i, 2))
+    # Decodes each char of the message from the stego image.
+    for i in range(total_chars):
+        pls_index = i * 3
+        pixel_numbers = pls[pls_index:pls_index + 3]
+        decoded_text += _read_character(stego_image, pixel_numbers, col)
 
     return decoded_text
