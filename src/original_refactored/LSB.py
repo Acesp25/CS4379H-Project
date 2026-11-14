@@ -15,15 +15,14 @@ OUTPUT_IMG_DIR = os.path.join(get_project_root(), "data/images/output/")
 INPUT_IMAGES = ["in1.png", "in2.png", "in3.png", "in4.png", "in5.png"]
 OUTPUT_IMAGES = ["out1.png", "out2.png", "out3.png", "out4.png", "out5.png"]
 
-# Other constants used in this script.
+# Global variables.
 pls = []
 
-# TODO: Document this func.
 def data_list_in_bit(data):
     data_bits = list(format(c, '08b') for c in bytearray(data.encode('latin-1')))
     return data_bits
 
-# TODO: Document this func.
+# Creates the pls file.
 def pls_gen(encoded_txt_len, input_img_path: str):
     img = Image.open(rf"{input_img_path}")
     [row, col] = img.size
@@ -42,7 +41,7 @@ def pls_gen(encoded_txt_len, input_img_path: str):
     pixel_locator_sequence = np.array(pls)
     np.savetxt(PLS_TXT_PATH, pixel_locator_sequence, delimiter = "\t")
 
-# TODO: Document this func.
+# Performs encryption and encodes the secret message into the image.
 def lsb_encoding(encoded_txt, input_img_path: str, output_img_path: str):
     # Creates PLS text file.
     pls_gen(len(encoded_txt), input_img_path)
@@ -97,7 +96,7 @@ def lsb_encoding(encoded_txt, input_img_path: str, output_img_path: str):
     key = hashlib.sha256(pls_password.encode()).digest()
     plsh.encrypt_file(key, PLS_TXT_PATH)
 
-# TODO: Document this func.
+# Performs decryption and decodes the secret message from the image.
 def lsb_decoding(input_img_path: str, output_img_path: str):
     # Gets user-created PLS password and decrypts PLS file.
     pls_password = input("Insert password for PLS decryption: ")
@@ -105,12 +104,9 @@ def lsb_decoding(input_img_path: str, output_img_path: str):
     plsh.decrypt_file(key, PLS_TXT_ENC_PATH, OUTPUT_TXT_PATH)
     pls = np.genfromtxt(OUTPUT_TXT_PATH, delimiter = "\t")
 
-    # Removes files since they are no longer needed.
+    # Removes the decrypted pls output file.
     if os.path.exists(OUTPUT_TXT_PATH):
         os.remove(OUTPUT_TXT_PATH)
-
-    if os.path.exists(PLS_TXT_ENC_PATH):
-        os.remove(PLS_TXT_ENC_PATH)
 
     # Gets the secret message.
     [row, col] = Image.open(rf"{input_img_path}").size
