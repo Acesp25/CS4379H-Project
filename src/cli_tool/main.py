@@ -7,6 +7,7 @@ from variants.no_pls import main as no_pls
 
 PROGRAM_NAMES = ["Original (Refactored)", "Compact PLS", "No Hex Encoding", "No PLS"] # Stores names of program variants.
 VALID_INPUT = ["A", "B", "C", "D"] # Stores all valid user input.
+USER_INPUT_ENCODER = { "A": 0, "B": 1, "C": 2, "D": 3 } # Encodes user input to index of "PROGRAM_NAMES".
 
 def _create_divider(text: str) -> str:
     return "=" * len(text)
@@ -48,16 +49,8 @@ def main():
 
     print(f"\n{colored(_create_divider(f"Loading {longer_str}..."), "light_grey", attrs = ["bold"])}\n")
 
-    # Encodes user input to index of "PROGRAM_NAMES".
-    user_input_encoder = {
-        "A": 0, 
-        "B": 1, 
-        "C": 2, 
-        "D": 3
-    }
-    
     # Confirms to the user which option they selected.
-    print(f"{colored("Loading " + PROGRAM_NAMES[user_input_encoder[user_input]] + "...", "light_grey", attrs = ["bold", "italic"])}\n")
+    print(f"{colored("Loading " + PROGRAM_NAMES[USER_INPUT_ENCODER[user_input]] + "...", "light_grey", attrs = ["bold", "italic"])}\n")
     print(f"{colored(_create_divider(f"Loading {longer_str}..."), "light_grey", attrs = ["bold", "italic"])}\n")
 
     # Decides which program to run.
