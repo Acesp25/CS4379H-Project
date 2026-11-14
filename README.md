@@ -56,7 +56,7 @@
 
 `python3 -m no_pls`
 
-### Features
+### Our Contributions
 
 TODO: Add descriptive information about the different variants after they are built.
 
