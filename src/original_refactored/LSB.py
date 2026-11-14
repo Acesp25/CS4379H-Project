@@ -18,6 +18,49 @@ OUTPUT_IMAGES = ["out1.png", "out2.png", "out3.png", "out4.png", "out5.png"]
 # Global variables.
 pls = []
 
+# Gets real index values of a pixel from its img using its assigned number and col value.
+# Note: "col" holds the image height, since img.size returns (width, height). This was how the original authors' had it.
+def _get_pixel_position(pixel_number, col):
+    x = pixel_number // col
+    y = pixel_number % col
+
+    return x, y
+
+# Hides a single character across multiple pixels.
+def _hide_character(img, char_as_bits, pixel_numbers, col):
+    # Divides bits in "char_as_bits" into groups of 3, 3, 2 (one group per pixel).
+    bit_groups = [char_as_bits[0:3], char_as_bits[3:6], char_as_bits[6:8]]
+
+    # Each iteration hides 3 or less bits within a single pixel.
+    for i in range(len(pixel_numbers)):
+        _hide_bits_in_pixel(img, pixel_numbers[i], bit_groups[i], col)
+
+# Hides bits in each LSB (3 max.) of an RGB pixel.
+def _hide_bits_in_pixel(img, pixel_number, bits, col):
+    x, y = _get_pixel_position(pixel_number, col)
+    rgb = img.getpixel((x, y))
+    channel_values = [rgb[0], rgb[1], rgb[2]]
+
+    for i in range(len(bits)):
+        channel_values[i] = _change_lsb(channel_values[i], bits[i])
+
+    img.putpixel((x, y), (channel_values[0], channel_values[1], channel_values[2]))
+
+# Changes LSB of a single pixel channel value, i.e., "R" or "G" or "B".
+def _change_lsb(channel_value, new_bit: str):
+    lsb = channel_value % 2
+
+    # Only changes LSB of channel value if it does not match the new bit.
+    if lsb != int(new_bit):
+        # Channel value can not be negative, so add 1 if value is literally 0.
+        if channel_value == 0:
+            channel_value += 1
+        # For all other mismatching values, subtract 1.
+        else:
+            channel_value -= 1
+
+    return channel_value
+
 def data_list_in_bit(data):
     data_bits = list(format(c, '08b') for c in bytearray(data.encode('latin-1')))
     return data_bits
@@ -48,45 +91,15 @@ def lsb_encoding(encoded_txt, input_img_path: str, output_img_path: str):
 
     # Variables.
     img = Image.open(rf"{input_img_path}")
-    [row, col] = img.size
+    col = img.size[1]
     data_bits = data_list_in_bit(encoded_txt)
-    dr = 0
 
-    for i in range(0, len(encoded_txt) * 3, 3):
-        dc = 0
-
-        for j in range(0, 3):
-            rr = pls[i + j] // col
-            rc = pls[i + j] % col
-            rgb = img.getpixel((rr, rc))
-            value = []
-            idx = 0
-
-            for k in rgb:
-                if (k % 2 == 0 and data_bits[dr][dc] == "1"):
-                    if (k == 0):
-                        k += 1
-                    else:
-                        k -= 1
-
-                if (k % 2 == 1 and data_bits[dr][dc] == "0"):
-                    k -= 1
-
-                value.append(k)
-                idx += 1
-                dc += 1
-
-                if (dc >= 8):
-                    break
-
-            if (dc >= 8):
-                value.append(rgb[2])
-
-            new_rgb = (value[0], value[1], value[2])
-
-            img.putpixel((rr, rc), new_rgb)
-
-        dr += 1
+    # Encodes each char of message across the image.
+    for i in range(len(data_bits)):
+        char_in_binary = data_bits[i]
+        pls_index = i * 3
+        pixel_numbers = pls[pls_index:pls_index + 3]
+        _hide_character(img, char_in_binary, pixel_numbers, col)
 
     # Saves output image file.
     img.save(output_img_path)
