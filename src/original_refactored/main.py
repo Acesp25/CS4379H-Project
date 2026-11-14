@@ -32,7 +32,7 @@ def _select_image(directory: str, img_type: str):
 
     # Prints menu options to user, e.g., "[A] Input image 1".
     for i in range(len(true_labels)):
-        img_num = int(re.findall("\d", list_images[i].name)[0])
+        img_num = int(re.findall("\\d", list_images[i].name)[0])
         print(f"[{true_labels[i]}] {img_type} image {img_num}")
 
     print()
@@ -65,7 +65,7 @@ def _encode():
     img = _select_image(INPUT_IMG_DIR, "Input")
 
     # Deletes corresponding output image if it exists.
-    img_number = int(re.findall("\d", img.name)[0])
+    img_number = int(re.findall("\\d", img.name)[0])
     output_img = f"{OUTPUT_IMG_DIR}out{img_number}.png"
 
     if os.path.exists(output_img):
@@ -97,7 +97,7 @@ def _decode():
     img = _select_image(OUTPUT_IMG_DIR, "Output")
 
     # Gets corresponding input image.
-    img_number = int(re.findall("\d", img.name)[0])
+    img_number = int(re.findall("\\d", img.name)[0])
     input_img = f"{INPUT_IMG_DIR}in{img_number}.png"
 
     # Decodes secret message.
