@@ -19,22 +19,25 @@ def _list_images(directory: str):
     for path in Path(directory).iterdir():
         images.append(path)
 
+    # Ensures images are sorted correctly, e.g., "in1.png, in2.png, in3.png, ...".
     return sorted(images)
 
 # Returns user image selection.
 def _select_image(directory: str, img_type: str):
     list_images = _list_images(directory)
     valid_labels = "ABCDE"
-    true_labels = valid_labels[:len(list_images)]
+    true_labels = valid_labels[:len(list_images)] # Only contains labels for amount of images that actually exist.
 
     print()
 
+    # Prints menu options to user, e.g., "[A] Input image 1".
     for i in range(len(true_labels)):
         img_num = int(re.findall("\d", list_images[i].name)[0])
         print(f"[{true_labels[i]}] {img_type} image {img_num}")
 
     print()
 
+    # Gets & validates user input.
     while True:
         user_input = input("Select an image to process: ").strip().upper()
 
@@ -45,6 +48,7 @@ def _select_image(directory: str, img_type: str):
         else:
             print("Error: Invalid input. Try again.")
 
+    # Returns the path of the image selected by the user.
     return list_images[true_labels.index(user_input)]
 
 def _encode():
@@ -76,7 +80,7 @@ def _encode():
     print(f"{encoded_message}\n")
     lsb.lsb_encoding(encoded_message, str(img), output_img)
 
-    # Deletes `pls.txt` and replaces with `pls.txt.enc`.
+    # Deletes "pls.txt" and replaces with "pls.txt.enc".
     if os.path.exists(PLS_TXT_PATH):
         os.remove(PLS_TXT_PATH)
 
