@@ -91,7 +91,7 @@ def _read_character(img, pixel_numbers, col):
     return chr(char_unicode_value)
 
 def data_list_in_bit(data):
-    data_bits = list(format(c, '08b') for c in bytearray(data.encode('latin-1')))
+    data_bits = list(format(c, "08b") for c in bytearray(data.encode("latin-1")))
     return data_bits
 
 # Creates the pls file.
