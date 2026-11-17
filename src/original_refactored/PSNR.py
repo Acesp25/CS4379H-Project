@@ -1,6 +1,6 @@
 from math import log10, sqrt
-import cv2
-import numpy as np
+from original_refactored import cv2
+from original_refactored import numpy as np
 
 def PSNR(original, compressed):
     mse = np.mean((original - compressed) ** 2)

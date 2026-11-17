@@ -219,3 +219,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 .DS_Store
+
+# PyCharm
+.idea/
+
+# Project-specific
+data/out.txt
+data/pls.txt
+data/pls.txt.enc
