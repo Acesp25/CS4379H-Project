@@ -8,11 +8,16 @@ import PLShandler as plsh
 
 
 def DataListInBit(data):
-    # data is raw bytes -> flat list of bits (MSB first), 8 bits per byte
+    # Turns the raw ciphertext bytes into one flat list of bits (MSB first),
+    # 8 bits per byte, ready to be hidden one bit per color channel.
     return np.unpackbits(np.frombuffer(data, dtype=np.uint8)).tolist()
 
 
 def PLSgen(row, col, numPixels):
+    # Builds the Pixel Locator Sequence: shuffles every pixel index in the image
+    # and keeps the first numPixels as the secret, random order in which pixels
+    # are used. Raises an error if the image is too small for the message.
+    # Saves the sequence to pls.txt (encrypted later by LsbEncoding) and returns it.
     if numPixels > row * col:
         raise ValueError("The input image does not have enough pixels for this message.")
     pixelLocaterSequence = list(range(row * col))
@@ -23,6 +28,11 @@ def PLSgen(row, col, numPixels):
 
 
 def LsbEncoding(encodedBytes, input_image_path, output_image_path):
+    # Hides the encrypted message in the cover image: generates the PLS, then
+    # writes the message bits into the least significant bit of the R, G and B
+    # values of each pixel in PLS order. Saves the stego image (use .png so the
+    # bits survive), then encrypts the PLS file with a password so the pixel
+    # locations stay secret.
     img = Image.open(input_image_path)
     width, height = img.size
     dataBits = DataListInBit(encodedBytes)
@@ -47,6 +57,10 @@ def LsbEncoding(encodedBytes, input_image_path, output_image_path):
 
 
 def LsbDecoding(output_image_path):
+    # Reverses LsbEncoding: decrypts the PLS file with the password (exiting
+    # with a clear error if the password or file is wrong), reads the LSB of
+    # each channel at those pixels in the stego image, and packs the bits back
+    # into the original ciphertext bytes. Deletes the PLS files afterwards.
     plspassword = input("Insert Password for pls decryption :")
     key = hashlib.sha256(plspassword.encode()).digest()
     plsh.decrypt_file(key, 'pls.txt.enc', 'out.txt')
