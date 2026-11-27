@@ -1,15 +1,10 @@
 import hashlib
 import random
-import os
-import numpy as np
 from PIL import Image
-from original_refactored import PLShandler as plsh
-from definitions import get_project_root
 
-# File name and path constants.
-PLS_TXT_PATH = os.path.join(get_project_root(), "data/pls.txt")
-PLS_TXT_ENC_PATH = os.path.join(get_project_root(), "data/pls.txt.enc")
-OUTPUT_TXT_PATH = os.path.join(get_project_root(), "data/out.txt")
+# Constants.
+HEADER_LENGTH = 4
+NUM_PIXELS_PER_CHAR = 3
 
 # Global variables.
 pls = []
