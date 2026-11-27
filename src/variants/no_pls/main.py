@@ -1,23 +1,70 @@
 import os
 import re
-from original_refactored  import LSB as lsb
-from original_refactored  import AES as Cipher
+from no_pls import LSB as lsb
+from no_pls import AES as Cipher
 from pathlib import Path
 from definitions import get_project_root
 
 # Constants file names and paths.
-PLS_TXT_PATH = os.path.join(get_project_root(), "data/pls.txt")
-PLS_TXT_ENC_PATH = os.path.join(get_project_root(), "data/pls.txt.enc")
-OUTPUT_TXT_PATH = os.path.join(get_project_root(), "data/out.txt")
 INPUT_IMG_DIR = os.path.join(get_project_root(), "data/images/input/")
 OUTPUT_IMG_DIR = os.path.join(get_project_root(), "data/images/output/")
+
+def _encode():
+    img = _select_image(INPUT_IMG_DIR, "Input")
+
+    # Gets stego image path.
+    img_number = int(re.findall("\\d", img.name)[0])
+    output_img = f"{OUTPUT_IMG_DIR}out{img_number}.png"
+
+    # Gets secret message and password.
+    secret_message = input("Enter the secret message: ")
+    sec_msg_password = input("\nEnter a secure password: ")
+
+    # Encrypts message and then hides it in the input image.
+    encoded_message = Cipher.encrypt(secret_message, sec_msg_password)
+    print(f"{encoded_message}\n")
+    
+    try:
+        lsb.lsb_encoding(encoded_message, str(img), output_img)
+        print(f"\nSaved stego image to {output_img}")
+    except ValueError as error_msg:
+        print(error_msg)
+    
+
+def _decode():
+    # Stops if no stego images exist.
+    if not _list_images(OUTPUT_IMG_DIR):
+        print("\nError: No output images found. Encode an image first.")
+        return
+    
+    img = _select_image(OUTPUT_IMG_DIR, "Output")
+
+    # Decodes secret message.
+    try:
+        decoded_text = lsb.lsb_decoding(str(img))
+        print(f"{decoded_text}\n")
+    except ValueError as error_msg:
+        print(f"\n{error_msg}")
+        return
+
+    # Gets password input.
+    sec_msg_password = input("Enter the secret message password: ")
+
+    # Decrypts the secret message.
+    try:
+        final_message = Cipher.decrypt(decoded_text, sec_msg_password)
+        print("\nFinal message: ", final_message)
+    except ValueError:
+        print("\nError: Wrong secret message password.")
 
 # Returns a list of file paths for images within "directory".
 def _list_images(directory: str):
     images = []
 
     for path in Path(directory).iterdir():
-        images.append(path)
+        # Only appends accepted image files (i.e., skips files such as .gitkeep).
+        if path.suffix.lower() in (".png", ".jpg", ".jpeg"):
+            images.append(path)
 
     # Ensures images are sorted correctly, e.g., "in1.png, in2.png, in3.png, ...".
     return sorted(images)
@@ -50,66 +97,6 @@ def _select_image(directory: str, img_type: str):
 
     # Returns the path of the image selected by the user.
     return list_images[true_labels.index(user_input)]
-
-def _encode():
-    # Deletes non-image output files if they exist.
-    if os.path.exists(OUTPUT_TXT_PATH):
-        os.remove(OUTPUT_TXT_PATH)
-
-    if os.path.exists(PLS_TXT_PATH):
-        os.remove(PLS_TXT_PATH)
-
-    if os.path.exists(PLS_TXT_ENC_PATH):
-        os.remove(PLS_TXT_ENC_PATH)
-
-    img = _select_image(INPUT_IMG_DIR, "Input")
-
-    # Deletes corresponding output image if it exists.
-    img_number = int(re.findall("\\d", img.name)[0])
-    output_img = f"{OUTPUT_IMG_DIR}out{img_number}.png"
-
-    if os.path.exists(output_img):
-        os.remove(output_img)
-
-    # Gets secret message and password.
-    secret_message = input("Enter the secret message: ")
-    sec_msg_password = input("\nEnter a secure password: ")
-
-    # Encrypts input image to produce output image and pls.
-    encoded_message = Cipher.encrypt(secret_message, sec_msg_password)
-    print(f"{encoded_message}\n")
-    lsb.lsb_encoding(encoded_message, str(img), output_img)
-
-    # Deletes "pls.txt" and replaces with "pls.txt.enc".
-    if os.path.exists(PLS_TXT_PATH):
-        os.remove(PLS_TXT_PATH)
-
-def _decode():
-    # Exits early if there is nothing to decode.
-    if not os.path.exists(PLS_TXT_ENC_PATH):
-        print("\nError: Encrypted PLS file was not found.")
-        return
-
-    if not _list_images(OUTPUT_IMG_DIR):
-        print("\nError: No output images found. Encode an image first.")
-        return
-    
-    img = _select_image(OUTPUT_IMG_DIR, "Output")
-
-    # Gets corresponding input image.
-    img_number = int(re.findall("\\d", img.name)[0])
-    input_img = f"{INPUT_IMG_DIR}in{img_number}.png"
-
-    # Decodes secret message.
-    decoded_text = lsb.lsb_decoding(input_img, str(img))
-    print(f"{decoded_text}\n")
-
-    # Gets password input.
-    sec_msg_password = input("Enter the secret message password: ")
-
-    # Decrypts the secret message.
-    final_message = Cipher.decrypt(decoded_text, sec_msg_password)
-    print("\nFinal message: ", final_message)
 
 def main():
     # Gets user input.
