@@ -1,7 +1,7 @@
 import os
 import re
-from no_pls import LSB as lsb
-from no_pls import AES as Cipher
+from variants.no_pls import LSB as lsb
+from variants.no_pls import AES as Cipher
 from pathlib import Path
 from definitions import get_project_root
 
