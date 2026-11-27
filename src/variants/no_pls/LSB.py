@@ -6,8 +6,24 @@ from PIL import Image
 HEADER_LENGTH = 4
 NUM_PIXELS_PER_CHAR = 3
 
-# Global variables.
-pls = []
+# Changes LSB of a single pixel channel value, i.e., "R" or "G" or "B".
+def _change_lsb(channel_value, new_bit: str):
+    lsb = channel_value % 2
+
+    # Only changes LSB of channel value if it does not match the new bit.
+    if lsb != int(new_bit):
+        # Channel value can not be negative, so add 1 if value is literally 0.
+        if channel_value == 0:
+            channel_value += 1
+        # For all other mismatching values, subtract 1.
+        else:
+            channel_value -= 1
+
+    return channel_value
+
+# Simply returns the LSB of a channel value number.
+def _get_lsb(channel_value):
+    return channel_value % 2
 
 # Gets real index values of a pixel from its img using its assigned number and col value.
 # Note: "col" holds the image height, since img.size returns (width, height). This was how the original authors' had it.
@@ -37,24 +53,20 @@ def _hide_bits_in_pixel(img, pixel_number, bits, col):
 
     img.putpixel((x, y), (channel_values[0], channel_values[1], channel_values[2]))
 
-# Changes LSB of a single pixel channel value, i.e., "R" or "G" or "B".
-def _change_lsb(channel_value, new_bit: str):
-    lsb = channel_value % 2
+# Returns the next 3 pixels from the pixel sequence generator.
+def _next_pixels(pixel_sequence):
+    return [next(pixel_sequence) for _ in range(NUM_PIXELS_PER_CHAR)]
 
-    # Only changes LSB of channel value if it does not match the new bit.
-    if lsb != int(new_bit):
-        # Channel value can not be negative, so add 1 if value is literally 0.
-        if channel_value == 0:
-            channel_value += 1
-        # For all other mismatching values, subtract 1.
-        else:
-            channel_value -= 1
+# Yields distinct pixel numbers in a pseudo-random order seeded by the password.
+def _pixel_sequence_generator(password, total_pixels):
+    rng = random.Random(_seed_from_password(password))
+    swaps = {}
 
-    return channel_value
-
-# Simply returns the LSB of a channel value number.
-def _get_lsb(channel_value):
-    return channel_value % 2
+    for i in range(total_pixels):
+        j = rng.randrange(i, total_pixels)
+        a, b = swaps.get(i, i), swaps.get(j, j)
+        swaps[j] = a
+        yield b
 
 # Gets the LSB's from a pixel.
 def _read_bits_from_pixel(img, pixel_number, col):
@@ -81,76 +93,50 @@ def _read_character(img, pixel_numbers, col):
     # Returns the Unicode equivalent char for the integer.
     return chr(char_unicode_value)
 
+# Creates a repeatable 32-byte seed from the PLS password using PBKDF2.
+def _seed_from_password(password):
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), b"lsb-pls", 200_000)
+
+# Converts each char of message data into an 8-bit binary string.
 def data_list_in_bit(data):
     data_bits = list(format(c, "08b") for c in bytearray(data.encode("latin-1")))
     return data_bits
 
-# Creates the pls file.
-def pls_gen(encoded_txt_len, input_img_path: str):
-    img = Image.open(rf"{input_img_path}")
-    [row, col] = img.size
-    new_arr = []
-
-    for i in range(row * col):
-        new_arr.append(i)
-
-    for i in range(len(new_arr) - 1, 0, -1):
-        j = random.randint(0, i + 1)
-        new_arr[i], new_arr[j] = new_arr[j], new_arr[i]
-
-    for i in range(encoded_txt_len * 3):
-        pls.append(new_arr[i])
-
-    pixel_locator_sequence = np.array(pls)
-    np.savetxt(PLS_TXT_PATH, pixel_locator_sequence, delimiter = "\t")
-
-# Performs encryption and encodes the secret message into the image.
+# Hides the message in the image using a password-based pixel order.
 def lsb_encoding(encoded_txt, input_img_path: str, output_img_path: str):
-    # Creates PLS text file.
-    pls_gen(len(encoded_txt), input_img_path)
+    pls_password = input("Insert password for PLS: ")
+    img = Image.open(input_img_path).convert("RGB") # Ensures non-RGB images can be used.
+    width, height = img.size
+    pixel_sequence = _pixel_sequence_generator(pls_password, width * height)
 
-    # Variables.
-    img = Image.open(rf"{input_img_path}")
-    col = img.size[1]
-    data_bits = data_list_in_bit(encoded_txt)
+    # Stops early if the message will not fit inside the image.
+    if (HEADER_LENGTH + len(encoded_txt)) * NUM_PIXELS_PER_CHAR > width * height:
+        raise ValueError("Error: Message is too large for this image.")
 
-    # Encodes each char of message across the image.
-    for i in range(len(data_bits)):
-        char_in_binary = data_bits[i]
-        pls_index = i * 3
-        pixel_numbers = pls[pls_index:pls_index + 3]
-        _hide_character(img, char_in_binary, pixel_numbers, col)
+    # Stores message length as 4 bytes so the receiver knows how many chars to read.
+    header = [format(byte, "08b") for byte in len(encoded_txt).to_bytes(HEADER_LENGTH, "big")]
 
-    # Saves output image file.
+    # Hides both header and message within the image using 3 pixels per char.
+    for bits in header + data_list_in_bit(encoded_txt):
+        _hide_character(img, bits, _next_pixels(pixel_sequence), height)
+
+    # Saves the stego image.
     img.save(output_img_path)
 
-    # Gets user input for PLS password and encrypts the PLS file.
-    pls_password = input("Insert password for PLS encryption: ")
-    key = hashlib.sha256(pls_password.encode()).digest()
-    plsh.encrypt_file(key, PLS_TXT_PATH)
+# Recovers the hidden message using the same password-based pixel order used to hide it.
+def lsb_decoding(output_img_path: str):
+    pls_password = input("Insert password for PLS: ")
+    img = Image.open(output_img_path)
+    width, height = img.size
+    pixel_sequence = _pixel_sequence_generator(pls_password, width * height)
+    
+    # Reads the 4-byte header to get message length.
+    header = "".join(_read_character(img, _next_pixels(pixel_sequence), height) for _ in range(HEADER_LENGTH))
+    msg_length = int.from_bytes(header.encode("latin-1"), "big") 
 
-# Performs decryption and decodes the secret message from the image.
-def lsb_decoding(input_img_path: str, output_img_path: str):
-    # Gets user-created PLS password and decrypts PLS file.
-    pls_password = input("Insert password for PLS decryption: ")
-    key = hashlib.sha256(pls_password.encode()).digest()
-    plsh.decrypt_file(key, PLS_TXT_ENC_PATH, OUTPUT_TXT_PATH)
-    pls = np.genfromtxt(OUTPUT_TXT_PATH, delimiter = "\t")
+    # Stops early if length does not fit in the image, usually means a wrong password was given by user.
+    if (HEADER_LENGTH + msg_length) * NUM_PIXELS_PER_CHAR > width * height:
+        raise ValueError("Error: Wrong PLS password or no hidden message.")
 
-    # Removes the decrypted pls output file.
-    if os.path.exists(OUTPUT_TXT_PATH):
-        os.remove(OUTPUT_TXT_PATH)
-
-    # Gets the secret message.
-    col = Image.open(rf"{input_img_path}").size[1]
-    stego_image = Image.open(rf"{output_img_path}")
-    total_chars = len(pls) // 3
-    decoded_text = ""
-
-    # Decodes each char of the message from the stego image.
-    for i in range(total_chars):
-        pls_index = i * 3
-        pixel_numbers = pls[pls_index:pls_index + 3]
-        decoded_text += _read_character(stego_image, pixel_numbers, col)
-
-    return decoded_text
+    # Reads each char of message & returns the decoded message.
+    return "".join(_read_character(img, _next_pixels(pixel_sequence), height) for _ in range(msg_length))
