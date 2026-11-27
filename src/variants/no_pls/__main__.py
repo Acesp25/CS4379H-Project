@@ -1,3 +1,3 @@
-from no_pls.main import main
+from variants.no_pls.main import main
 
 main()
